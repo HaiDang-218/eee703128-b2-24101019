@@ -460,6 +460,6 @@ Optimizing module tt_um_eee703128_24101019.
      $_SDFF_PN0_                     1
      $_XOR_                          1
 
-End of script. Logfile hash: 485fccf0f3, CPU: user 0.07s system 0.01s, MEM: 12.58 MB peak
+End of script. Logfile hash: 485fccf0f3, CPU: user 0.08s system 0.00s, MEM: 12.55 MB peak
 Yosys 0.33 (git sha1 2584903a060)
-Time spent: 32% 11x opt_expr (0 sec), 22% 3x read_verilog (0 sec), ...
+Time spent: 29% 11x opt_expr (0 sec), 15% 9x opt_clean (0 sec), ...
