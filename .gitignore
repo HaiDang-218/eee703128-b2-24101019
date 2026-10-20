@@ -1,0 +1,7 @@
+
+# Simulation files
+*.vvp
+*.vcd
+
+# Backup files
+*.bak
