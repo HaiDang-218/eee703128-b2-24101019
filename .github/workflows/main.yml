@@ -1,0 +1,32 @@
+
+name: D04 Verilog CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  simulation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog yosys
+
+      - name: Compile Verilog
+        run: |
+          iverilog -g2012 -s tb -o sim.vvp src/project.v test/tb.v
+
+      - name: Run simulation
+        run: |
+          vvp sim.vvp
+
+      - name: Synthesize RTL
+        run: |
+          yosys -p "read_verilog src/project.v; hierarchy -top tt_um_eee703128_24101019; synth -top tt_um_eee703128_24101019; check"
