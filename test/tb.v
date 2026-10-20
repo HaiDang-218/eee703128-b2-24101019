@@ -48,9 +48,9 @@ module tb;
         ena = 1;
         rst_n = 0;
         ui_in = 0;
-        uio_in = 8'b00000010; // Ring, cho phep dem
+        uio_in = 8'b00000010;
 
-        // Reset va kiem tra trang thai ban dau
+        // Reset Ring
         repeat (2) @(posedge clk);
         #1;
 
@@ -62,11 +62,10 @@ module tb;
             $display("FAIL | Ring reset got=%02h expected=01", uo_out);
         end
 
-        // Nha reset tai canh xuong de tranh lech nhip
         @(negedge clk);
         rst_n = 1;
 
-        // RING: 8 trang thai
+        // Ring: 8 trang thai
         kiem(8'h02, "Ring state 2");
         kiem(8'h04, "Ring state 3");
         kiem(8'h08, "Ring state 4");
@@ -76,16 +75,31 @@ module tb;
         kiem(8'h80, "Ring state 8");
         kiem(8'h01, "Ring wraparound");
 
-        // Tat cho phep dem, state phai giu nguyen
+        // Ring disable: giu nguyen trang thai
+        @(negedge clk);
         uio_in = 8'b00000000;
         kiem(8'h01, "Ring hold");
 
-        // Chuyen sang Johnson: mode=1, enable=0
+        // Reset Johnson
+        @(negedge clk);
         uio_in = 8'b00000001;
-        kiem(8'h00, "Johnson initial state");
+        rst_n = 0;
+        @(posedge clk);
+        #1;
 
-        // Bat cho phep dem
+        so_ca = so_ca + 1;
+        if (uo_out === 8'h00)
+            $display("PASS | Johnson reset state | state=%02h", uo_out);
+        else begin
+            so_sai = so_sai + 1;
+            $display("FAIL | Johnson reset got=%02h expected=00", uo_out);
+        end
+
+        @(negedge clk);
+        rst_n = 1;
         uio_in = 8'b00000011;
+
+        // Johnson: 16 trang thai
         kiem(8'h01, "Johnson state 2");
         kiem(8'h03, "Johnson state 3");
         kiem(8'h07, "Johnson state 4");
@@ -103,13 +117,27 @@ module tb;
         kiem(8'h80, "Johnson state 16");
         kiem(8'h00, "Johnson wraparound");
 
-        // Thu tu phuc hoi khi state khong hop le.
-        // Dat state noi bo = 55 tai canh xuong,
-        // sau do RTL phai dua state ve 00 tai canh len tiep theo.
+        // Johnson invalid + disable: giu 55
         @(negedge clk);
+        uio_in = 8'b00000001;
         dut.state = 8'h55;
+        kiem(8'h55, "Johnson invalid state hold");
 
+        // Johnson invalid + enable: phuc hoi 00
+        @(negedge clk);
+        uio_in = 8'b00000011;
         kiem(8'h00, "Johnson invalid-state recovery");
+
+        // Ring invalid + disable: giu AA
+        @(negedge clk);
+        uio_in = 8'b00000000;
+        dut.state = 8'hAA;
+        kiem(8'hAA, "Ring invalid state hold");
+
+        // Ring invalid + enable: phuc hoi 01
+        @(negedge clk);
+        uio_in = 8'b00000010;
+        kiem(8'h01, "Ring invalid-state recovery");
 
         // Tong ket
         $display("");
