@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Wed Oct 21 09:07:36 2026
+[*]
+[dumpfile] "/home/dang/rtl2gds/B2_D04_24101019/tb.vcd"
+[dumpfile_mtime] "Tue Oct 20 19:14:16 2026"
+[dumpfile_size] 8007
+[savefile] "/home/dang/rtl2gds/B2_D04_24101019/d04_waveform.gtkw"
+[timestart] 0
+[size] 2048 1280
+[pos] -1 -1
+*-15.317225 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 297
+[signals_width] 126
+[sst_expanded] 1
+[sst_vpaned_height] 394
+@28
+tb.clk
+tb.ena
+tb.rst_n
+@420
+tb.so_ca
+tb.so_sai
+@22
+tb.ui_in[7:0]
+tb.uio_in[7:0]
+tb.uio_oe[7:0]
+tb.uio_out[7:0]
+@23
+tb.uo_out[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

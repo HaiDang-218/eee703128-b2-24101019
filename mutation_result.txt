@@ -1,0 +1,36 @@
+VCD info: dumpfile tb.vcd opened for output.
+PASS | Ring reset state | state=01
+PASS | Ring state 2 | state=02
+PASS | Ring state 3 | state=04
+PASS | Ring state 4 | state=08
+PASS | Ring state 5 | state=10
+PASS | Ring state 6 | state=20
+PASS | Ring state 7 | state=40
+PASS | Ring state 8 | state=80
+FAIL | Ring wraparound | got=00 expected=01
+FAIL | Ring hold | got=00 expected=01
+PASS | Johnson reset state | state=00
+PASS | Johnson state 2 | state=01
+PASS | Johnson state 3 | state=03
+PASS | Johnson state 4 | state=07
+PASS | Johnson state 5 | state=0f
+PASS | Johnson state 6 | state=1f
+PASS | Johnson state 7 | state=3f
+PASS | Johnson state 8 | state=7f
+PASS | Johnson state 9 | state=ff
+PASS | Johnson state 10 | state=fe
+PASS | Johnson state 11 | state=fc
+PASS | Johnson state 12 | state=f8
+PASS | Johnson state 13 | state=f0
+PASS | Johnson state 14 | state=e0
+PASS | Johnson state 15 | state=c0
+PASS | Johnson state 16 | state=80
+PASS | Johnson wraparound | state=00
+PASS | Johnson invalid state hold | state=55
+PASS | Johnson invalid-state recovery | state=00
+PASS | Ring invalid state hold | state=aa
+PASS | Ring invalid-state recovery | state=01
+
+=== KET QUA: 31 ca, 2 sai ===
+CO CA KIEM THU THAT BAI
+test/tb.v:152: $finish called at 326000 (1ps)

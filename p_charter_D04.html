@@ -1,0 +1,275 @@
+<html><head><meta charset="utf-8"><title>D04 — Bộ đếm vòng và bộ đếm Johnson 8-bit</title></head><body><h2>Bộ đếm vòng và bộ đếm Johnson 8-bit</h2>
+<p><strong>Môn:</strong> EEE703128 · Nhập môn Thiết kế Vi mạch Tích hợp — Bài kiểm tra số 2
+<strong>Giảng viên hướng dẫn:</strong> Đinh Văn Nam</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;font-size:0.95em">
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"ead>
+<tr>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"></th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Nhóm</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">D · Bộ đếm và chia tần</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Độ khó</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Trung bình</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Loại mạch</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Tuần tự</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Quy mô tham khảo</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">~130–200 cell · 1×1 tile</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sinh viên:</strong> <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>  <strong>MSSV/Lớp:</strong> </em></strong><strong><em>_</em></strong><strong><em>_</em>_
+<strong>Ngày chốt:</strong> </strong>__/<strong><em>_/</em></strong><strong><em>  <strong>Chữ ký:</strong> </em></strong><strong><em>_</em></strong>______</p>
+<blockquote style="border-left:4px solid #5b8def;background:#f4f7fd;margin:1em 0;padding:0.6em 1em">
+<p>Phiếu này là <strong>bản đầy đủ</strong>: nó gộp khung charter chung với ba nội dung riêng của
+mã D04 (sơ đồ chân · ca kiểm thử tối thiểu · câu phân tích riêng) mà bản charter
+rút gọn để trống. Em không cần tra thêm tài liệu nào khác để bắt đầu.</p>
+</blockquote>
+<hr>
+<h2>1. MỤC TIÊU DỰ ÁN</h2>
+<p><strong>Nhiệm vụ.</strong> Thiết kế RTL thực hiện đúng chức năng của đề này, kiểm chứng bằng testbench, sau đó đưa thiết kế qua flow RTL-to-GDSII để đọc và giải thích kết quả.</p>
+<p><strong>Cần chú ý ở họ đề này.</strong> Điều kiện reset, wrap/rollover, enable, sai lệch một chu kỳ và mối quan hệ giữa clock đầu vào với tín hiệu/giá trị đầu ra.</p>
+<p><strong>Bối cảnh ứng dụng.</strong> Khối tạo chuỗi điều khiển tuần tự cho bốn van trong hệ thống pha trộn, mỗi bước mở đúng một van.</p>
+<p>Trước khi viết dòng code nào, hãy trả lời được hai câu: <em>khối này nằm ở đâu trong một hệ
+thống thật?</em> và <em>tầng trên cần gì ở nó?</em> Hai câu đó là mở đầu của báo cáo.</p>
+<hr>
+<h2>2. BẢN CHẤT MẠCH — phải giải thích được <strong>trước khi</strong> viết dòng code nào</h2>
+<blockquote style="border-left:4px solid #5b8def;background:#f4f7fd;margin:1em 0;padding:0.6em 1em">
+<p>Đây là phần quyết định em hiểu bài hay chỉ chạy được script. Giảng viên sẽ hỏi đúng bốn ô
+dưới đây: ô đầu <strong>trước khi</strong> em code, ô thứ hai <strong>sau khi</strong> mô phỏng, hai ô cuối <strong>khi
+đọc log và report</strong>.</p>
+</blockquote>
+<p><strong>Họ đề D — Đếm – thời gian – tạo xung</strong>
+Counter là “đồng hồ logic” của hệ số. Trọng tâm là modulo, off-by-one, enable/load/reset và timing semantics.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;font-size:0.95em">
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"ead>
+<tr>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"></th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Bản chất mạch</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Shift register với feedback; ring có một-hot quay vòng, Johnson có inverted feedback.</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Điểm em phải giải thích được</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Số trạng thái hợp lệ và khởi tạo.</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Rủi ro RTL/verification điển hình</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Reset vào state khóa; feedback sai.</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Dấu hiệu cần đọc ở synthesis/physical</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">8 FF + wiring đơn giản.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>3. RỦI RO KỸ THUẬT CHÍNH VÀ KIỂM SOÁT</h2>
+<p>Rủi ro: Off-by-one, reset/wrap sai hoặc tần số/chia tần không đúng chu kỳ.  |  Giảm thiểu: Vẽ timeline vài chu kỳ đầu và kiểm thử quanh điểm rollover/chuyển trạng thái.</p>
+<p><strong>Chỗ hay tắc ở riêng đề D04</strong></p>
+<blockquote style="border-left:4px solid #5b8def;background:#f4f7fd;margin:1em 0;padding:0.6em 1em">
+<p>Không nạp cưỡng bức được trạng thái bất hợp lệ trong testbench nên không chứng minh được mạch tự sửa.</p>
+</blockquote>
+<p><strong>Dấu hiệu làm đúng — tự kiểm được, dùng để biết mình có đi đúng hướng không</strong></p>
+<blockquote style="border-left:4px solid #5b8def;background:#f4f7fd;margin:1em 0;padding:0.6em 1em">
+<p>8 ô nhớ (cả hai kiểu dùng chung thanh ghi) + 1 chọn kiểu.</p>
+</blockquote>
+<hr>
+<h2>4. TRỌNG TÂM PHÂN TÍCH</h2>
+<p>Độ rộng bộ đếm và logic next-state/wrap ảnh hưởng thế nào đến số flip-flop, cell và critical path?</p>
+<h3>4.1 Câu hỏi kỹ thuật của đề này</h3>
+<ol>
+<li>Bộ đếm vòng 8 trạng thái dùng 8 ô nhớ — vì sao không dùng 3 ô nhớ như đếm nhị phân?</li>
+<li>Mạch tự sửa trạng thái bất hợp lệ hoạt động thế nào, và nó tốn bao nhiêu cell?</li>
+<li>Vì sao bộ đếm vòng có 248 trạng thái bất hợp lệ trong khi chỉ dùng 8?</li>
+</ol>
+<p>Được phép thay bằng câu hỏi của chính mình, <strong>miễn là cụ thể và trả lời được bằng bằng
+chứng</strong>. Không viết "tìm hiểu về…".</p>
+<h3>4.2 ⭐ Câu phân tích riêng — BẮT BUỘC trả lời</h3>
+<blockquote style="border-left:4px solid #5b8def;background:#f4f7fd;margin:1em 0;padding:0.6em 1em">
+<p>Mạch tự sửa trạng thái bất hợp lệ là phần đáng chú ý nhất. Chỉ ra nó trong báo cáo và giải thích vì sao bộ đếm vòng có tới 248 trạng thái bất hợp lệ trong khi chỉ dùng 8.
+Bắt buộc trả lời bằng số liệu của chính mình. Mỗi đề một câu khác nhau.</p>
+</blockquote>
+<p>Đây là phần phân biệt rõ nhất giữa báo cáo khá và báo cáo giỏi. Phải trả lời <strong>bằng số liệu
+do chính lần chạy của em sinh ra</strong>, kèm tên file báo cáo và lệnh đã dùng để tạo ra nó.</p>
+<hr>
+<h2>5. GIAO DIỆN VÀ SƠ ĐỒ CHÂN</h2>
+<p>Theo danh mục đề: uio_in[0]=chọn kiểu · uio_in[1]=cho phép · uo_out[7:0]=trạng thái đếm
+Ngân sách chân: 2 bit vào + 8 bit ra = 10 trên 24 chân.
+Ánh xạ chân đã khả thi, không phải đổi gì.
+Một ô Tiny Tapeout có đúng 24 chân: ui_in 8 chỉ vào, uo_out 8 chỉ ra, uio 8 chọn chiều từng chân. uio_in và uio_out là cùng một bộ chân vật lý.</p>
+<p><strong>Việc phải làm:</strong> lập bảng giao diện đầy đủ — tên tín hiệu · chiều · độ rộng · mức tích
+cực · giả định. Đây là một trong những mục bị trừ điểm nhiều nhất vì làm thiếu.</p>
+<hr>
+<h2>6. CA KIỂM THỬ TỐI THIỂU</h2>
+<ul>
+<li><code>Chạy đủ chu kỳ hai kiểu · nạp cưỡng bức trạng thái bất hợp lệ rồi kiểm mạch tự sửa</code></li>
+</ul>
+<p><strong>Bắt buộc bổ sung ít nhất HAI ca do em tự xây dựng, trong đó có ca biên.</strong> Với mỗi ca tự
+thêm, phải viết rõ: <em>ca này bắt lỗi gì mà các ca trên không bắt được?</em> Ca thêm vào mà không
+giải thích được thì không tính.</p>
+<hr>
+<h2>7. PHẠM VI</h2>
+<p><strong>Trong phạm vi.</strong> Đặc tả chức năng · RTL · testbench · kiểm chứng waveform · flow
+RTL-to-GDSII · đọc và giải thích báo cáo · báo cáo cá nhân.</p>
+<p><strong>Ngoài phạm vi — chung cho mọi đề.</strong> Chế tạo chip, tape-out, sign-off, hoặc khẳng định
+thiết kế sẵn sàng sản xuất.</p>
+<p><strong>Ngoài phạm vi — riêng đề này.</strong> Bộ đếm vòng rộng hơn 8 bit, mã hoá lai.</p>
+<hr>
+<h2>8. KẾ HOẠCH THỰC HIỆN</h2>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;font-size:0.95em">
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"ead>
+<tr>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">Mốc</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">Nội dung</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">Đầu ra cần chốt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>M1</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Đặc tả</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Chốt giao diện, giả định, trường hợp biên, sơ đồ khối/trạng thái</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>M2</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">RTL + Verification</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">RTL chạy được; ca bắt buộc + ≥2 ca bổ sung; waveform có giải thích</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>M3</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">RTL-to-GDSII</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Push repo, chạy GitHub Actions/LibreLane, lưu artifacts hoặc nhật ký lỗi</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>M4</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Đọc và giải thích báo cáo</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">synthesis · STA · power · DRC/LVS · layout; trả lời câu phân tích riêng</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>M5</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Báo cáo</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">PDF 8–15 trang, đủ thông tin tái lập, chuẩn bị vấn đáp 5 phút</td>
+</tr>
+</tbody>
+</table>
+<p>Giảng viên điền hạn nộp từng mốc vào cột trống dưới đây ở buổi giao đề:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;font-size:0.95em">
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"ead>
+<tr>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">Mốc</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">M1</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">M2</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">M3</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">M4</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">M5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Hạn nộp</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>9. BÀN GIAO VÀ TIÊU CHÍ NGHIỆM THU</h2>
+<h3>9.1 Bốn sản phẩm phải nộp</h3>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;font-size:0.95em">
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600"ead>
+<tr>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">#</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">Sản phẩm</th>
+<th style="border:1px solid #c7ccd1;padding:8px 10px;background:#eef2f5;text-align:left;font-weight:600">Ghi chú</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">1</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top"><strong>Repo GitHub cá nhân</strong> + lịch sử commit + <strong>link CI</strong></td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">🚪 <strong>Cổng A — bắt buộc.</strong> Thiếu là không chấm tiếp</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">2</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">RTL + testbench/test script + mô tả giao diện</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Bám đúng đặc tả; ca bắt buộc + ≥2 ca bổ sung</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">3</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Artifacts của flow, <strong>hoặc</strong> nhật ký lỗi + chẩn đoán nếu flow thất bại</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Flow hỏng <strong>không</strong> đồng nghĩa trượt — chẩn đoán có bằng chứng vẫn được tính</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">4</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Báo cáo PDF <strong>8–15 trang</strong> + phụ lục thông tin tái lập</td>
+<td style="border:1px solid #c7ccd1;padding:8px 10px;vertical-align:top">Xem <code>MAU_BAO_CAO.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3>9.2 Tiêu chí chất lượng hồ sơ — áp dụng cho mọi đề</h3>
+<ul>
+<li>Bảng giao diện đầy đủ, nhất quán với đặc tả; tín hiệu nào cũng có chiều và độ rộng.</li>
+<li>Mỗi khẳng định đi kèm bằng chứng và điều kiện tạo ra bằng chứng đó.</li>
+<li>Trả lời câu phân tích riêng bằng dữ liệu của chính mình.</li>
+<li>Nêu giới hạn trung thực; không dùng phát biểu vượt mức như “đã sign-off”.</li>
+</ul>
+<h3>9.3 Phải ghi đủ để người khác tái lập được</h3>
+<p>Repo · commit · CI run · phiên bản LibreLane · phiên bản PDK · ngày chạy.
+Thiếu bất kỳ mục nào thì số liệu <strong>không tái lập được</strong>, và số không tái lập được thì không
+có giá trị.</p>
+<hr>
+<h2>10. LƯU Ý RIÊNG KHI CHẠY FLOW CHO ĐỀ NÀY</h2>
+<p>Mạch <strong>tuần tự</strong>: có clock ⟹ bước CTS sẽ dựng cây xung nhịp. Đọc báo cáo CTS để biết bao nhiêu buffer được chèn thêm và skew bằng bao nhiêu.</p>
+<p>Khi đọc báo cáo, nhớ hai điều dễ nhầm nhất:</p>
+<ol>
+<li><strong>Số ô sau layout khác số ô sau tổng hợp</strong> — vì layout còn có buffer, cây clock, tap/endcap
+   cell. Hai con số trả lời hai câu hỏi khác nhau; nêu cả hai và giải thích chênh lệch.</li>
+<li><strong><code>CLOCK_PERIOD</code> là giả định phân tích, không phải yêu cầu hệ thống.</strong> Slack dương chỉ có
+   nghĩa "đạt ở chu kỳ giả định đó". Tuyệt đối không viết "mạch chạy được ở X MHz".</li>
+</ol>
+<hr>
+<h2>11. KHÔNG ĐƯỢC KHẲNG ĐỊNH</h2>
+<p>Bốn phát biểu sau <strong>không được viết trong báo cáo, trong mọi trường hợp</strong>:</p>
+<blockquote style="border-left:4px solid #5b8def;background:#f4f7fd;margin:1em 0;padding:0.6em 1em">
+<p>"đã sign-off" · "đã tape-out" · "đã chế tạo" · "chạy được ở XXX MHz"</p>
+</blockquote>
+<p>Có file GDS <strong>chỉ</strong> chứng minh một cơ sở dữ liệu GDS đã được sinh ra. Nó không tự nó chứng
+minh chức năng đúng (cần mô phỏng gate-level), timing đạt (cần STA sau routing), DRC/LVS
+sạch (phải đọc chính báo cáo đó), hay chế tạo được (<strong>ngoài phạm vi môn học</strong>).</p>
+<p>Kết luận phải <strong>có điều kiện</strong>: nêu rõ đã chứng minh được gì, <strong>và chưa chứng minh được gì</strong>.</p>
+<hr>
+<h2>12. DANH MỤC TỰ KIỂM TRƯỚC KHI NỘP</h2>
+<ul>
+<li>[ ] Repo cá nhân có lịch sử commit thật (không phải một commit duy nhất)</li>
+<li>[ ] Link CI run chạy được, mở ra xem được</li>
+<li>[ ] Bảng giao diện đủ: tên · chiều · độ rộng · mức tích cực · giả định</li>
+<li>[ ] Đủ ca kiểm thử bắt buộc ở §5 <strong>+ ≥2 ca tự xây dựng có giải thích</strong></li>
+<li>[ ] Waveform có chú thích, chỉ rõ đang nhìn cái gì</li>
+<li>[ ] Đọc đủ: synthesis · STA · power · DRC/LVS · layout (hoặc chẩn đoán lỗi có bằng chứng)</li>
+<li>[ ] <strong>Đã trả lời câu phân tích riêng §3.2 bằng số của chính mình</strong></li>
+<li>[ ] Mỗi khẳng định có bằng chứng + điều kiện tạo ra bằng chứng</li>
+<li>[ ] Ghi đủ: repo · commit · CI run · phiên bản LibreLane · PDK · ngày chạy</li>
+<li>[ ] Báo cáo 8–15 trang, kết luận có điều kiện, nêu giới hạn</li>
+<li>[ ] Không có phát biểu vượt mức ở §11</li>
+<li>[ ] Chuẩn bị được 5 phút vấn đáp về chính số liệu của mình</li>
+</ul>
+<hr>
+<p><em>Charter D04 · EEE703128 · Bản dành cho sinh viên.
+Hướng dẫn chung, mẫu CI và mẫu báo cáo: xem <code>00_HUONG_DAN_CHUNG.md</code> và <code>MAU_BAO_CAO.md</code>.</em></p></body></html>
